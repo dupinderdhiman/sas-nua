@@ -18,8 +18,15 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-authorization-server")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    runtimeOnly("com.microsoft.sqlserver:mssql-jdbc")
+
+    implementation("org.springframework.security:spring-security-cas")
+    implementation("org.springframework.security:spring-security-oauth2-authorization-server")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
