@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 
 import javax.sql.DataSource;
 
@@ -42,14 +43,18 @@ public class Config {
     public RegisteredClientRepository registeredClientRepository() {
         RegisteredClient registeredClient = RegisteredClient.withId("client")
                 .clientId("client")
-                .clientSecret("{noop}secret")
-                .clientName("NamedUserAuthentication")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                .authorizationGrantType(AuthorizationGrantType.TOKEN_EXCHANGE)
                 .redirectUri("https://oauth.pstmn.io/v1/callback")
                 .scope(OidcScopes.OPENID)
+                .scope(OidcScopes.PROFILE)
+                .clientSettings(ClientSettings.builder()
+                                        .requireAuthorizationConsent(false)
+                                        .requireProofKey(false)
+                                        .build()
+                )
                 .build();
 
         return new InMemoryRegisteredClientRepository(registeredClient);

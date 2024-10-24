@@ -1,3 +1,4 @@
+/*
 package com.catalystone.sas.sasnua.services;
 
 import org.apache.commons.logging.Log;
@@ -100,8 +101,10 @@ public class TenantAuthenticationProvider2 implements AuthenticationProvider {
 
             authenticateFurther(authenticationToken);
             //OAuth2AuthorizationCode authorizationCode = new OAuth2AuthorizationCode("authorization-code", Instant.now(), Instant.now().plus(60,ChronoUnit.MINUTES));
-            /*return
-                    ;*/
+            */
+/*return
+                    ;*//*
+
         }
 
         throw new OAuth2AuthenticationException(OAuth2ErrorCodes.ACCESS_DENIED);
@@ -252,20 +255,23 @@ public class TenantAuthenticationProvider2 implements AuthenticationProvider {
                                                                      authorizationRequest.getState(), authorizationRequest.getScopes());
     }
 
-    /**
+    */
+/**
      * Sets the {@link OAuth2TokenGenerator} that generates the
      * {@link OAuth2AuthorizationCode}.
      * @param authorizationCodeGenerator the {@link OAuth2TokenGenerator} that generates
      * the {@link OAuth2AuthorizationCode}
      * @since 0.2.3
-     */
+     *//*
+
     public void setAuthorizationCodeGenerator(
             OAuth2TokenGenerator<OAuth2AuthorizationCode> authorizationCodeGenerator) {
         Assert.notNull(authorizationCodeGenerator, "authorizationCodeGenerator cannot be null");
         this.authorizationCodeGenerator = authorizationCodeGenerator;
     }
 
-    /**
+    */
+/**
      * Sets the {@code Consumer} providing access to the
      * {@link OAuth2AuthorizationCodeRequestAuthenticationContext} and is responsible for
      * validating specific OAuth 2.0 Authorization Request parameters associated in the
@@ -280,14 +286,16 @@ public class TenantAuthenticationProvider2 implements AuthenticationProvider {
      * {@link OAuth2AuthorizationCodeRequestAuthenticationContext} and is responsible for
      * validating specific OAuth 2.0 Authorization Request parameters
      * @since 0.4.0
-     */
+     *//*
+
     public void setAuthenticationValidator(
             Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator) {
         Assert.notNull(authenticationValidator, "authenticationValidator cannot be null");
         this.authenticationValidator = authenticationValidator;
     }
 
-    /**
+    */
+/**
      * Sets the {@code Predicate} used to determine if authorization consent is required.
      *
      * <p>
@@ -304,7 +312,8 @@ public class TenantAuthenticationProvider2 implements AuthenticationProvider {
      * @param authorizationConsentRequired the {@code Predicate} used to determine if
      * authorization consent is required
      * @since 1.3
-     */
+     *//*
+
     public void setAuthorizationConsentRequired(
             Predicate<OAuth2AuthorizationCodeRequestAuthenticationContext> authorizationConsentRequired) {
         Assert.notNull(authorizationConsentRequired, "authorizationConsentRequired cannot be null");
@@ -441,3 +450,4 @@ public class TenantAuthenticationProvider2 implements AuthenticationProvider {
     }
 
 }
+*/

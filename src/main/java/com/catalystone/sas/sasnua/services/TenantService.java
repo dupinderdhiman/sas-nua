@@ -15,7 +15,8 @@ public class TenantService {
     public TenantService() {
         // Initialize with some dummy data
         clientToTenantMap.put("client", "tenant1");
-        tenantIdToUrlMap.put("tenant1", "https://iamroutinedev1.devtest.catalystone.dev");
+//        tenantIdToUrlMap.put("tenant1", "https://iamroutinedev1.devtest.catalystone.dev");
+        tenantIdToUrlMap.put("tenant1", "http://localhost:4200");
     }
 
     public String getTenantIdForClient(String clientId) {
