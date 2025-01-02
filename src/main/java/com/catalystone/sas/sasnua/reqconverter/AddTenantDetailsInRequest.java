@@ -42,6 +42,8 @@ public class AddTenantDetailsInRequest implements AuthenticationConverter {
         String clientId = defaultAuthentication.getClientId();
         String tenantId = tenantService.getTenantIdForClient(clientId);
         String tenantUrl = tenantService.getTenantUrlForId(tenantId);
+
+        // custom logic to handle callback from tenant
         String tenantAuthReqId = (String) defaultAuthentication.getAdditionalParameters().get("tenantAuthReqId");
 
         log.info("AddTenantDetails tenantAuthReqId: {}", tenantAuthReqId);
@@ -103,6 +105,7 @@ public class AddTenantDetailsInRequest implements AuthenticationConverter {
         //return null;
 
         if (Objects.isNull(tenantAuthReqId)) {
+            // initial request from client
             return new OAuth2AuthorizationCodeRequestAuthenticationToken(defaultAuthentication.getAuthorizationUri(),
                                                                          defaultAuthentication.getClientId(),
                                                                          (Authentication) defaultAuthentication.getPrincipal(),
@@ -110,7 +113,7 @@ public class AddTenantDetailsInRequest implements AuthenticationConverter {
                                                                          defaultAuthentication.getState(),
                                                                          defaultAuthentication.getScopes(),
                                                                          additionalParameters);
-        }else {
+        } else {
             var auth = new UsernamePasswordAuthenticationToken("hrg", null, Collections.emptyList());
             additionalParameters.put(Principal.class.getName(), auth);
             return new OAuth2AuthorizationCodeRequestAuthenticationToken(defaultAuthentication.getAuthorizationUri(),

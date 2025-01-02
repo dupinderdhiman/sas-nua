@@ -1,3 +1,4 @@
+/*
 package com.catalystone.sas.sasnua.services;
 
 import jakarta.servlet.ServletException;
@@ -36,6 +37,7 @@ public class CustomAccessTokenResponseHandler implements AuthenticationSuccessHa
 
 
 
+*/
 /*
 OAuth2AccessToken accessToken = accessTokenAuthentication.getAccessToken();
 OAuth2RefreshToken refreshToken = accessTokenAuthentication.getRefreshToken();
@@ -56,3 +58,4 @@ OAuth2AccessTokenResponse.Builder builder =
         }
 OAuth2AccessTokenResponse accessTokenResponse = builder.build();
 ServletServerHttpResponse httpResponse = new ServletServerHttpResponse(response);*/
+

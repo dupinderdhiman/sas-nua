@@ -1,3 +1,4 @@
+/*
 package com.catalystone.sas.sasnua.reqconverter;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,3 +35,4 @@ public class WaitForAuthenticationCallback implements AuthenticationConverter {
         );
     }
 }
+*/
