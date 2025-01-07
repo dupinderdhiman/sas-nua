@@ -45,15 +45,14 @@ public class TenantAuthenticationProvider implements AuthenticationProvider {
 
         Authentication userAuth;
 
-        */
-/*String tenantAuthReqId = (String) auth.getAdditionalParameters().get("tenantAuthReqId");
+String tenantAuthReqId = (String) auth.getAdditionalParameters().get("tenantAuthReqId");
         if(Objects.isNull(tenantAuthReqId)) {
             log.info("Tenant Authentication is required, so fallback to exception handler and redirect to tenant's URL");
             return auth;
         }
         else {
             userAuth = new UsernamePasswordAuthenticationToken("hrg", null, Collections.emptyList());
-        }*//*
+        }
 
 
         userAuth = new UsernamePasswordAuthenticationToken("hrg", null, Collections.emptyList());
@@ -82,8 +81,6 @@ public class TenantAuthenticationProvider implements AuthenticationProvider {
 
 
 
-*/
-/*
         String clientId = auth.getClientId();
 
 
@@ -133,16 +130,13 @@ public class TenantAuthenticationProvider implements AuthenticationProvider {
                     .attribute(OAuth2AuthorizationRequest.class.getName(), authorizationRequest)
                     .attribute(Principal.class.getName(), userAuth);
 
-   *//*
-*/
-/*         RegisteredClient registeredClient = this.registeredClientRepository
+
+         RegisteredClient registeredClient = this.registeredClientRepository
                     .findByClientId(clientId);
             OAuth2AuthorizationCodeRequestAuthenticationContext.Builder authenticationContextBuilder = OAuth2AuthorizationCodeRequestAuthenticationContext
                     .with(auth)
                     .registeredClient(registeredClient);
-            this.authenticationValidator.accept(authenticationContextBuilder.build());*//*
-*/
-/*
+            this.authenticationValidator.accept(authenticationContextBuilder.build());
 
 
 
@@ -164,7 +158,7 @@ public class TenantAuthenticationProvider implements AuthenticationProvider {
 
         }
 
-        throw new OAuth2AuthenticationException(OAuth2ErrorCodes.ACCESS_DENIED);*//*
+        throw new OAuth2AuthenticationException(OAuth2ErrorCodes.ACCESS_DENIED);
 
     }
 
@@ -174,4 +168,5 @@ public class TenantAuthenticationProvider implements AuthenticationProvider {
         return OAuth2AuthorizationCodeRequestAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
-}*/
+}
+*/

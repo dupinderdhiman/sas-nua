@@ -17,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -72,7 +71,7 @@ public class SecurityConfig {
         .authorizationEndpoint(authorizationEndpoint ->
                 authorizationEndpoint
                         .authorizationRequestConverters(c -> c.add(0, new AddTenantDetailsInRequest(tenantService, tenantAuthService)))
-                        .consentPage("/oauth2/v1/authorize")
+                        .consentPage("/oauth2/consent")
         );
 
         http.exceptionHandling(exceptions -> exceptions
@@ -87,7 +86,7 @@ public class SecurityConfig {
                         .includeSubDomains(false)
                         .preload(true)
                         .requestMatcher(AnyRequestMatcher.INSTANCE)));
-        http.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        //http.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
 
         /*http.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
@@ -140,10 +139,18 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher("/tenant-authentication-callback/").authorizeHttpRequests((authorize) -> authorize.anyRequest().permitAll());
+        http.securityMatcher("/tenant-authentication-callback/")
+                .authorizeHttpRequests((authorize) -> authorize.anyRequest().permitAll());
         return http.build();
     }
 
+    @Bean
+    @Order(3)
+    public SecurityFilterChain consentSecurityFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/oauth2/consent")
+                .authorizeHttpRequests((authorize) -> authorize.anyRequest().permitAll());
+        return http.build();
+    }
 
     @Bean
     public UserDetailsService userDetailsService() {

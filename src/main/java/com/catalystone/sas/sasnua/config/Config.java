@@ -51,8 +51,8 @@ public class Config {
                 .scope(OidcScopes.OPENID)
                 .scope(OidcScopes.PROFILE)
                 .clientSettings(ClientSettings.builder()
-                                        .requireAuthorizationConsent(false)
-                                        .requireProofKey(false)
+                                        .requireAuthorizationConsent(true)
+                                        .requireProofKey(true)
                                         .build()
                 )
                 .build();

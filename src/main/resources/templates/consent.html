@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="">
+<head>
+    <meta charset="UTF-8">
+    <title>Consent Page</title>
+</head>
+<body>
+<h1>Consent</h1>
+
+<p>
+    Application: <span th:text="${application.name}"></span> is requesting access to your account.
+</p>
+
+<p>
+    Scopes:
+<ul>
+    <li th:each="scope : ${scopes}">
+        <span th:text="${scope}"></span>
+    </li>
+</ul>
+</p>
+
+<form th:action="@{/oauth2/authorize}" method="post">
+    <input type="hidden" name="client_id" th:value="${clientId}">
+    <input type="hidden" name="scope" th:value="${scopes}">
+    <input type="hidden" name="redirect_uri" th:value="${redirectUri}">
+    <input type="hidden" name="state" th:value="${state}">
+    <input type="hidden" name="tenantAuthReqId" th:value="${tenantAuthReqId}">
+
+    <button type="submit" name="approve">Approve</button>
+    <button type="submit" name="deny">Deny</button>
+</form>
+
+</body>
+</html>

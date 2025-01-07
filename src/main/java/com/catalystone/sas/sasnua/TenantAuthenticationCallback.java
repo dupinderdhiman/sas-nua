@@ -4,9 +4,11 @@ package com.catalystone.sas.sasnua;
 import com.catalystone.sas.sasnua.services.TenantAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,12 +18,13 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/tenant-authentication-callback")
+@RequestMapping("/tenant-authentication-callback") @Slf4j
 public class TenantAuthenticationCallback {
 
     @Autowired TenantAuthService tenantAuthService;
@@ -41,8 +44,8 @@ public class TenantAuthenticationCallback {
         additionalParameters.put("tenantAuthReqId", tenantAuthReqId);
         additionalParameters.put("username", userName);
 
-
         Authentication userAuth = new UsernamePasswordAuthenticationToken(userName, null, Collections.emptyList());
+        additionalParameters.put(Principal.class.getName(), userAuth);
         var newOAuth2Req = new OAuth2AuthorizationCodeRequestAuthenticationToken(
                 oAuth2Req.getAuthorizationUri(),
                 oAuth2Req.getClientId(),
@@ -53,7 +56,15 @@ public class TenantAuthenticationCallback {
                 additionalParameters
         );
 
+        SecurityContextHolder.getContext().setAuthentication(userAuth);
+
+        log.info("Security Context Authentication: {}", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        log.info("Security Context isAuthenticated: {}", SecurityContextHolder.getContext().getAuthentication().isAuthenticated());
         // Redirect to the OAuth2 Authorization Server with the new OAuth2AuthorizationCodeRequestAuthenticationToken
+
+        request.getSession().setAttribute("newOAuth2Req", newOAuth2Req);
+        request.getSession().setAttribute("principal", userAuth);
+
         response.sendRedirect(buildOAuth2AuthorizeUri(newOAuth2Req));
     }
 
@@ -76,6 +87,8 @@ public class TenantAuthenticationCallback {
         additionalParameters.forEach((key, value) -> {
             uriBuilder.append("&").append(encodeValue(key)).append("=").append(encodeValue(value.toString()));
         });
+
+        log.info("Tenant callback URI to oauth2/authorize endpoint: {}", uriBuilder.toString());
 
         return uriBuilder.toString();
     }

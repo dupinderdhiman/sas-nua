@@ -26,7 +26,7 @@ dependencies {
     implementation("org.springframework.security:spring-security-cas")
     implementation("org.springframework.security:spring-security-oauth2-authorization-server")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
-
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     compileOnly("org.projectlombok:lombok:1.18.34")

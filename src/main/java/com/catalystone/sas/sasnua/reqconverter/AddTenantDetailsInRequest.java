@@ -6,15 +6,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationToken;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationConsentAuthenticationToken;
+import org.springframework.security.oauth2.server.authorization.web.authentication.DelegatingAuthenticationConverter;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2AuthorizationCodeRequestAuthenticationConverter;
+import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2AuthorizationConsentAuthenticationConverter;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 
 import java.security.Principal;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class AddTenantDetailsInRequest implements AuthenticationConverter {
 
@@ -26,31 +27,101 @@ public class AddTenantDetailsInRequest implements AuthenticationConverter {
     public AddTenantDetailsInRequest(TenantService tenantService, TenantAuthService tenantAuthService) {
         this.tenantService = tenantService;
         this.tenantAuthService = tenantAuthService;
-        this.defaultConverter = new OAuth2AuthorizationCodeRequestAuthenticationConverter();
+        this.defaultConverter = new DelegatingAuthenticationConverter(
+                Arrays.asList(new OAuth2AuthorizationCodeRequestAuthenticationConverter(),
+                              new OAuth2AuthorizationConsentAuthenticationConverter()));
     }
 
 
     @Override
     public Authentication convert(HttpServletRequest request) {
-        OAuth2AuthorizationCodeRequestAuthenticationToken defaultAuthentication = (OAuth2AuthorizationCodeRequestAuthenticationToken) defaultConverter.convert(
-                request);
+        log.info("Entered in Converted");
+        Authentication token = defaultConverter.convert(request);
 
-        if (defaultAuthentication == null) {
-            return null;
+        if (token instanceof OAuth2AuthorizationCodeRequestAuthenticationToken defaultAuthentication) {
+
+            log.info("Security Context Authentication: {}", SecurityContextHolder.getContext().getAuthentication());
+
+            if (defaultAuthentication == null) {
+                return null;
+            }
+
+            String clientId = defaultAuthentication.getClientId();
+            String tenantId = tenantService.getTenantIdForClient(clientId);
+            String tenantUrl = tenantService.getTenantUrlForId(tenantId);
+
+            // custom logic to handle callback from tenant
+            String tenantAuthReqId = (String) defaultAuthentication.getAdditionalParameters().get("tenantAuthReqId");
+
+            log.info("AddTenantDetails tenantAuthReqId: {}", tenantAuthReqId);
+
+            Map<String, Object> additionalParameters = new HashMap<>(defaultAuthentication.getAdditionalParameters());
+            additionalParameters.put("tenant_url", tenantUrl);
+            additionalParameters.put("tenant_id", tenantId);
+
+            if (Objects.isNull(tenantAuthReqId)) {
+                // initial request from client
+                return new OAuth2AuthorizationCodeRequestAuthenticationToken(
+                        defaultAuthentication.getAuthorizationUri(), defaultAuthentication.getClientId(),
+                        (Authentication) defaultAuthentication.getPrincipal(), defaultAuthentication.getRedirectUri(),
+                        defaultAuthentication.getState(), defaultAuthentication.getScopes(), additionalParameters);
+            } else {
+                var auth = new UsernamePasswordAuthenticationToken("hrg", null, Collections.emptyList());
+                additionalParameters.put(Principal.class.getName(), auth);
+                return new OAuth2AuthorizationCodeRequestAuthenticationToken(
+                        defaultAuthentication.getAuthorizationUri(), defaultAuthentication.getClientId(), auth,
+                        defaultAuthentication.getRedirectUri(), defaultAuthentication.getState(),
+                        defaultAuthentication.getScopes(), additionalParameters);
+            }
         }
 
-        String clientId = defaultAuthentication.getClientId();
-        String tenantId = tenantService.getTenantIdForClient(clientId);
-        String tenantUrl = tenantService.getTenantUrlForId(tenantId);
+        if (token instanceof OAuth2AuthorizationConsentAuthenticationToken defaultAuthentication) {
+            log.info("Enter in OAuth2AuthorizationConsentAuthenticationToken");
 
-        // custom logic to handle callback from tenant
-        String tenantAuthReqId = (String) defaultAuthentication.getAdditionalParameters().get("tenantAuthReqId");
+            String clientId = defaultAuthentication.getClientId();
+            var tenantAuthReqId =  defaultAuthentication.getAdditionalParameters().get("tenantAuthReqId");
+            var principal = defaultAuthentication.getPrincipal();
+            var principalFromAdditionalParameters = defaultAuthentication.getAdditionalParameters().get(Principal.class.getName());
 
-        log.info("AddTenantDetails tenantAuthReqId: {}", tenantAuthReqId);
+            log.info("AddTenantDetails tenantAuthReqId: {}", tenantAuthReqId);
+            log.info("AddTenantDetails principal: {}", principal);
+            log.info("AddTenantDetails principalFromAdditionalParameters: {}", principalFromAdditionalParameters);
+            return defaultAuthentication;
+        }
+        return null;
+    }
+}
+    // Set the Authentication into the SecurityContextHolder
 
-        Map<String, Object> additionalParameters = new HashMap<>(defaultAuthentication.getAdditionalParameters());
-        additionalParameters.put("tenant_url", tenantUrl);
-        additionalParameters.put("tenant_id", tenantId);
+
+    // Simulates redirect to tenant's URL (open new window)
+/*    private void sendRedirect(HttpServletRequest request, String redirectUrl) {
+        try {
+            request.getRequestDispatcher(redirectUrl).forward(request, null);
+        } catch (Exception e) {
+            throw new RuntimeException("Error in redirecting to tenant's URL", e);
+        }
+    }
+
+    // Polls the database to check the authentication status for the reqId
+    private void checkAuthenticationStatus(String tenantAuthReqId) {
+        boolean isAuthenticated = false;
+        int i = 0;
+        while (!isAuthenticated) {
+            try {
+                Thread.sleep(Duration.ofSeconds(1).toMillis());
+                i++;
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Error in sleep during polling", e);
+            }
+
+            if( i >= 10) {
+                isAuthenticated = true;
+            }
+            else
+                isAuthenticated = tenantAuthService.isAuthenticated(tenantAuthReqId);
+        }
+    }*/
 
 /*
         String tenantAuthReqId = (String) defaultAuthentication.getAdditionalParameters().get("tenantAuthReqId");
@@ -102,60 +173,4 @@ public class AddTenantDetailsInRequest implements AuthenticationConverter {
             return authToken;
         }*/
 
-        //return null;
-
-        if (Objects.isNull(tenantAuthReqId)) {
-            // initial request from client
-            return new OAuth2AuthorizationCodeRequestAuthenticationToken(defaultAuthentication.getAuthorizationUri(),
-                                                                         defaultAuthentication.getClientId(),
-                                                                         (Authentication) defaultAuthentication.getPrincipal(),
-                                                                         defaultAuthentication.getRedirectUri(),
-                                                                         defaultAuthentication.getState(),
-                                                                         defaultAuthentication.getScopes(),
-                                                                         additionalParameters);
-        } else {
-            var auth = new UsernamePasswordAuthenticationToken("hrg", null, Collections.emptyList());
-            additionalParameters.put(Principal.class.getName(), auth);
-            return new OAuth2AuthorizationCodeRequestAuthenticationToken(defaultAuthentication.getAuthorizationUri(),
-                                                                         defaultAuthentication.getClientId(),
-                                                                         auth,
-                                                                         defaultAuthentication.getRedirectUri(),
-                                                                         defaultAuthentication.getState(),
-                                                                         defaultAuthentication.getScopes(),
-                                                                         additionalParameters);
-        }
-
-    }
-    // Set the Authentication into the SecurityContextHolder
-
-
-    // Simulates redirect to tenant's URL (open new window)
-/*    private void sendRedirect(HttpServletRequest request, String redirectUrl) {
-        try {
-            request.getRequestDispatcher(redirectUrl).forward(request, null);
-        } catch (Exception e) {
-            throw new RuntimeException("Error in redirecting to tenant's URL", e);
-        }
-    }
-
-    // Polls the database to check the authentication status for the reqId
-    private void checkAuthenticationStatus(String tenantAuthReqId) {
-        boolean isAuthenticated = false;
-        int i = 0;
-        while (!isAuthenticated) {
-            try {
-                Thread.sleep(Duration.ofSeconds(1).toMillis());
-                i++;
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Error in sleep during polling", e);
-            }
-
-            if( i >= 10) {
-                isAuthenticated = true;
-            }
-            else
-                isAuthenticated = tenantAuthService.isAuthenticated(tenantAuthReqId);
-        }
-    }*/
-
-}
+//return null;
