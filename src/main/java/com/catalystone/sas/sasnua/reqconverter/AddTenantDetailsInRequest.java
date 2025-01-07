@@ -86,7 +86,12 @@ public class AddTenantDetailsInRequest implements AuthenticationConverter {
             log.info("AddTenantDetails tenantAuthReqId: {}", tenantAuthReqId);
             log.info("AddTenantDetails principal: {}", principal);
             log.info("AddTenantDetails principalFromAdditionalParameters: {}", principalFromAdditionalParameters);
-            return defaultAuthentication;
+            var details = tenantAuthService.getAuthDetailsByReqId((String) tenantAuthReqId);
+            return new OAuth2AuthorizationConsentAuthenticationToken(
+                    defaultAuthentication.getAuthorizationUri(), defaultAuthentication.getClientId(),
+                    new UsernamePasswordAuthenticationToken("hrg", null, List.of()),
+                    defaultAuthentication.getState(), defaultAuthentication.getScopes(),
+                    defaultAuthentication.getAdditionalParameters());
         }
         return null;
     }

@@ -20,7 +20,9 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    //h2
+    runtimeOnly("com.h2database:h2")
+//    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     runtimeOnly("com.microsoft.sqlserver:mssql-jdbc")
 
     implementation("org.springframework.security:spring-security-cas")

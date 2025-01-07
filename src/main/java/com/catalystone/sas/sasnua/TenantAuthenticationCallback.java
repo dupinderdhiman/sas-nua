@@ -63,7 +63,6 @@ public class TenantAuthenticationCallback {
         // Redirect to the OAuth2 Authorization Server with the new OAuth2AuthorizationCodeRequestAuthenticationToken
 
         request.getSession().setAttribute("newOAuth2Req", newOAuth2Req);
-        request.getSession().setAttribute("principal", userAuth);
 
         response.sendRedirect(buildOAuth2AuthorizeUri(newOAuth2Req));
     }

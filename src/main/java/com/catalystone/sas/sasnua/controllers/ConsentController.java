@@ -29,7 +29,6 @@ public class ConsentController {
         String applicationName = "CO Authorization Server";
         // Example: Fetch from database
         // Parse scope string into a list
-        log.info("Request Principal: {}", request.getSession().getAttribute("principal"));
         var act = (OAuth2AuthorizationCodeRequestAuthenticationToken) request.getSession().getAttribute("newOAuth2Req");
         log.info("tenant auth req id : {} " , act.getAdditionalParameters().get("tenantAuthReqId"));
 
